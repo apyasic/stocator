@@ -88,12 +88,14 @@ public class ObjectStoreFileSystem extends ExtendedFileSystem {
     if (!conf.getBoolean("mapreduce.fileoutputcommitter.marksuccessfuljobs", true)) {
       throw new IOException("mapreduce.fileoutputcommitter.marksuccessfuljobs should be enabled");
     }
-    uri = URI.create(fsuri.getScheme() + "://" + fsuri.getAuthority());
+    // use getRawAuthority to avoid decoding when encoded authority provided
+    uri = URI.create(fsuri.getScheme() + "://" + fsuri.getRawAuthority());
     setConf(conf);
     String committerType = conf.get(OUTPUT_COMMITTER_TYPE, DEFAULT_FOUTPUTCOMMITTER_V1);
     if (storageClient == null) {
       storageClient = ObjectStoreVisitor.getStoreClient(fsuri, conf);
       if (Utils.validSchema(fsuri.toString())) {
+    	// decoded host name scheme
         hostNameScheme = storageClient.getScheme() + "://"  + Utils.getHost(fsuri) + "/";
       } else {
         String accessURL = Utils.extractAccessURL(fsuri.toString());

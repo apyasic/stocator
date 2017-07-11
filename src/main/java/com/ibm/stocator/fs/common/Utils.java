@@ -71,9 +71,12 @@ public class Utils {
     if (i <= 0) {
       throw badHostName(hostname);
     }
-    return hostname.substring(0, i);
+    // decode it if encoded
+    return decodeURI(hostname.substring(0, i));
   }
 
+  
+  
   /**
    * Extracts service name from the container.service
    *
@@ -90,7 +93,7 @@ public class Utils {
     if (service.isEmpty() || service.contains(".")) {
       throw badHostName(hostname);
     }
-    return service;
+    return decodeURI(service);
   }
 
   /**
@@ -134,12 +137,26 @@ public class Utils {
     if (host != null) {
       return host;
     }
-    host = uri.toString();
-    int sInd = host.indexOf("//") + 2;
-    host = host.substring(sInd);
-    int eInd = host.indexOf("/");
-    host = host.substring(0,eInd);
-    return host;
+    
+    return getHost(uri.toString());
+  }
+
+
+  /**
+   * Extract host name from the URI
+   *
+   * @param uri object store uri
+   * @return host name
+   */
+  public static String getHost(String uri) {
+    
+    int sInd = uri.indexOf("//") + 2;
+    uri = uri.substring(sInd);
+    
+    int eInd = uri.contains("/") ? uri.indexOf("/"): uri.length();
+    uri = uri.substring(0,eInd);
+    
+    return decodeURI(uri);
   }
 
   /**
@@ -306,5 +323,15 @@ public class Utils {
     } catch (ParseException e) {
       throw new IOException("Failed to parse " + strTime, e);
     }
+  }
+  
+  /**
+   * Decodes URI or part of it
+   * 
+   * @param uri encoded with URI ctor (not URIEncoder) according to RFC 3986
+   * @return decoded uri or part of it
+   */
+  private static String decodeURI(String uri) {
+	  return uri.replace("%20", " ").replace("%2A", "*").replace("%7E", "~");
   }
 }

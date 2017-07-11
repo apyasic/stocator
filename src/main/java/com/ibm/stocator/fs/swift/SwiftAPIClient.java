@@ -803,7 +803,7 @@ public class SwiftAPIClient implements IStoreClient {
   }
 
   private String getObjName(String hostName, String path) {
-    return path.substring(hostName.length());
+    return hostName.equals(path) ? "" : path.substring(hostName.length());
   }
 
   /**
